@@ -54,5 +54,13 @@ export const MOCK_CATALOG = {
     { id: 'inv_002', name: 'Ayam', category: 'Protein', qty: 110, unit: 'kg', min: 90, status: 'safe', expiry: '2026-05-03' },
     { id: 'inv_003', name: 'Sayur Campur', category: 'Sayur', qty: 82, unit: 'kg', min: 60, status: 'warning_expiry', expiry: '2026-05-02' },
     { id: 'inv_004', name: 'Telur', category: 'Protein', qty: 80, unit: 'butir', min: 150, status: 'low_stock', expiry: '2026-05-10' },
+  ],
+  distribution: [
+    { id: 'dr_001', run_no: 'DR-20260501-001', point: 'PAUD Melati', portions: 120, status: 'delivered', time: '07:30' },
+    { id: 'dr_002', run_no: 'DR-20260501-002', point: 'SD Inpres Pannara', portions: 220, status: 'delivered', time: '07:45' },
+    { id: 'dr_003', run_no: 'DR-20260501-003', point: 'SD Inpres Pannara', portions: 240, status: 'delivered', time: '08:00' },
+    { id: 'dr_004', run_no: 'DR-20260501-004', point: 'SMP Negeri 8', portions: 380, status: 'in_transit', time: 'Est. 09:15' },
+    { id: 'dr_005', run_no: 'DR-20260501-005', point: 'Posyandu Sehat Ibu Anak', portions: 160, status: 'delivered', time: '08:15' },
+    { id: 'dr_006', run_no: 'DR-20260501-006', point: 'Posyandu Sehat Ibu Anak', portions: 160, status: 'scheduled', time: 'Est. 09:30' },
   ]
 };
