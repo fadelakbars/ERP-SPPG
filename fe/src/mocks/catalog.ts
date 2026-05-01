@@ -62,5 +62,19 @@ export const MOCK_CATALOG = {
     { id: 'dr_004', run_no: 'DR-20260501-004', point: 'SMP Negeri 8', portions: 380, status: 'in_transit', time: 'Est. 09:15' },
     { id: 'dr_005', run_no: 'DR-20260501-005', point: 'Posyandu Sehat Ibu Anak', portions: 160, status: 'delivered', time: '08:15' },
     { id: 'dr_006', run_no: 'DR-20260501-006', point: 'Posyandu Sehat Ibu Anak', portions: 160, status: 'scheduled', time: 'Est. 09:30' },
-  ]
+  ],
+  finance: {
+    summary: {
+      total_expense: 15360000,
+      total_budget: 16640000,
+      remaining_budget: 1280000,
+      cost_per_portion: 12000,
+      utilization_pct: 92.5
+    },
+    expenses: [
+      { id: 'exp_001', date: '2026-05-01', category: 'Bahan Baku', amount: 12600000, status: 'posted', ref: 'GR-20260501-001' },
+      { id: 'exp_002', date: '2026-05-01', category: 'Logistik', amount: 1560000, status: 'posted', ref: 'DR-20260501-ALL' },
+      { id: 'exp_003', date: '2026-05-01', category: 'Operasional', amount: 1200000, status: 'posted', ref: 'OPS-20260501' },
+    ]
+  }
 };

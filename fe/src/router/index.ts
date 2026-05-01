@@ -4,6 +4,7 @@ import Beneficiaries from '../views/Beneficiaries.vue';
 import Production from '../views/Production.vue';
 import Inventory from '../views/Inventory.vue';
 import Distribution from '../views/Distribution.vue';
+import Finance from '../views/Finance.vue';
 import BaseLayout from '../layouts/BaseLayout.vue';
 
 const router = createRouter({
@@ -41,7 +42,7 @@ const router = createRouter({
         {
           path: 'finance',
           name: 'finance',
-          component: () => import('../views/Dashboard.vue'), // Placeholder
+          component: Finance,
         },
       ],
     },
