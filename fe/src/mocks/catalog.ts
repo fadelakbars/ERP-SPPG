@@ -31,5 +31,22 @@ export const MOCK_CATALOG = {
       budget_warning_count: 1
     }
   },
-  // Add more as needed
+  menu: {
+    id: "menu_001",
+    name: "Nasi Ayam Sayur",
+    service_date: "2026-05-01",
+    nutrition: { calories: 650, protein: 24, fat: 18 },
+    items: [
+      { name: "Beras", qty: "128 kg" },
+      { name: "Ayam", qty: "96 kg" },
+      { name: "Sayur Campur", qty: "76.8 kg" },
+      { name: "Telur", qty: "1,280 butir" },
+    ]
+  },
+  productionBatches: [
+    { id: 'pb_001', no: 'PB-20260501-001', portions: 320, produced: 315, status: 'pending_qc', time: '04:00 - 06:15' },
+    { id: 'pb_002', no: 'PB-20260501-002', portions: 320, produced: 320, status: 'qc_passed', time: '04:30 - 06:45' },
+    { id: 'pb_003', no: 'PB-20260501-003', portions: 320, produced: 318, status: 'ready_for_delivery', time: '05:00 - 07:15' },
+    { id: 'pb_004', no: 'PB-20260501-004', portions: 320, produced: 320, status: 'completed', time: '05:30 - 07:45' },
+  ]
 };
