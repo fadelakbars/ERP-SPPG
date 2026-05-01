@@ -48,5 +48,11 @@ export const MOCK_CATALOG = {
     { id: 'pb_002', no: 'PB-20260501-002', portions: 320, produced: 320, status: 'qc_passed', time: '04:30 - 06:45' },
     { id: 'pb_003', no: 'PB-20260501-003', portions: 320, produced: 318, status: 'ready_for_delivery', time: '05:00 - 07:15' },
     { id: 'pb_004', no: 'PB-20260501-004', portions: 320, produced: 320, status: 'completed', time: '05:30 - 07:45' },
+  ],
+  inventory: [
+    { id: 'inv_001', name: 'Beras', category: 'Sembako', qty: 250, unit: 'kg', min: 100, status: 'safe', expiry: '2026-07-29' },
+    { id: 'inv_002', name: 'Ayam', category: 'Protein', qty: 110, unit: 'kg', min: 90, status: 'safe', expiry: '2026-05-03' },
+    { id: 'inv_003', name: 'Sayur Campur', category: 'Sayur', qty: 82, unit: 'kg', min: 60, status: 'warning_expiry', expiry: '2026-05-02' },
+    { id: 'inv_004', name: 'Telur', category: 'Protein', qty: 80, unit: 'butir', min: 150, status: 'low_stock', expiry: '2026-05-10' },
   ]
 };
