@@ -34,15 +34,19 @@ const stats = [
 
     <div class="dashboard-content">
       <div class="content-card alert-section">
-        <h2>Peringatan Sistem</h2>
+        <h2>Peringatan Sistem ({{ appStore.dashboard.alerts.low_stock_count + appStore.dashboard.alerts.qc_pending_count + appStore.dashboard.alerts.delivery_risk_count + appStore.dashboard.alerts.budget_warning_count }})</h2>
         <div class="alert-list">
-          <div class="alert-item warning">
+          <div v-if="appStore.dashboard.alerts.low_stock_count > 0" class="alert-item warning">
             <span class="alert-title">Stok Telur Menipis</span>
             <p>Sisa stok hanya cukup untuk 1 hari produksi.</p>
           </div>
-          <div class="alert-item info">
+          <div v-if="appStore.dashboard.alerts.qc_pending_count > 0" class="alert-item info">
             <span class="alert-title">Batch PB-20260501-001</span>
             <p>Menunggu hasil Quality Control (QC).</p>
+          </div>
+          <div v-if="appStore.dashboard.alerts.delivery_risk_count > 0" class="alert-item danger">
+            <span class="alert-title">Risiko Keterlambatan</span>
+            <p>DR-20260501-004 terjebak kemacetan rute utama.</p>
           </div>
         </div>
       </div>
@@ -151,6 +155,11 @@ const stats = [
 .alert-item.info {
   background: #eff6ff;
   border-color: #3b82f6;
+}
+
+.alert-item.danger {
+  background: #fef2f2;
+  border-color: #ef4444;
 }
 
 .alert-title {
