@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Dashboard from '../views/Dashboard.vue';
+import Beneficiaries from '../views/Beneficiaries.vue';
 import BaseLayout from '../layouts/BaseLayout.vue';
 
 const router = createRouter({
@@ -17,7 +18,7 @@ const router = createRouter({
         {
           path: 'beneficiaries',
           name: 'beneficiaries',
-          component: () => import('../views/Dashboard.vue'), // Placeholder
+          component: Beneficiaries,
         },
         {
           path: 'production',
