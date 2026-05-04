@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { MOCK_CATALOG } from '../mocks/catalog';
+import { onMounted } from 'vue';
+import { useAppStore } from '../store/app';
 import { 
   Truck, 
   MapPin, 
@@ -11,10 +11,18 @@ import {
   MoreVertical,
   Navigation,
   Camera,
-  AlertCircle
+  AlertCircle,
+  Loader2,
+  Check
 } from 'lucide-vue-next';
 
-const distribution = MOCK_CATALOG.distribution;
+const appStore = useAppStore();
+
+onMounted(() => {
+  if (appStore.distributionRuns.length === 0) {
+    appStore.fetchInitialData();
+  }
+});
 
 const getStatusBadgeClass = (status: string) => {
   const classes: Record<string, string> = {
@@ -35,81 +43,104 @@ const getStatusLabel = (status: string) => {
   };
   return labels[status] || status;
 };
+
+const confirmDelivery = async (id: string) => {
+  await appStore.updateDistributionStatus(id, 'delivered');
+};
 </script>
 
 <template>
   <div class="distribution-page">
-    <header class="page-header">
-      <div class="header-content">
-        <h1>Distribusi & Logistik</h1>
-        <p>Pemantauan pengiriman paket makanan ke titik distribusi.</p>
-      </div>
-      <div class="header-actions">
-        <button class="btn-secondary">Peta Rute</button>
-        <button class="btn-primary">
-          <Truck :size="18" />
-          Manifest Baru
-        </button>
-      </div>
-    </header>
+    <div v-if="appStore.loading" class="loading-overlay">
+      <Loader2 class="animate-spin" :size="48" />
+      <p>Memuat data distribusi...</p>
+    </div>
 
-    <div class="distribution-grid">
-      <!-- Main List -->
-      <section class="list-section">
-        <div class="table-container">
-          <div class="table-actions">
-            <div class="search-box">
-              <Search :size="18" class="search-icon" />
-              <input type="text" placeholder="Cari rute atau sekolah..." />
-            </div>
-            <button class="btn-secondary">
-              <Filter :size="18" />
-              Filter
-            </button>
-          </div>
-
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>No. Run</th>
-                <th>Titik Distribusi</th>
-                <th>Porsi</th>
-                <th>Waktu</th>
-                <th>Status</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in distribution" :key="item.id">
-                <td class="font-bold">{{ item.run_no }}</td>
-                <td>
-                  <div class="point-cell">
-                    <MapPin :size="14" class="text-gray-400" />
-                    <span>{{ item.point }}</span>
-                  </div>
-                </td>
-                <td class="text-right">{{ item.portions }}</td>
-                <td>{{ item.time }}</td>
-                <td>
-                  <span :class="['badge', getStatusBadgeClass(item.status)]">
-                    {{ getStatusLabel(item.status) }}
-                  </span>
-                </td>
-                <td>
-                  <div class="action-cell">
-                    <button class="btn-icon" title="Lihat Bukti" v-if="item.status === 'delivered'">
-                      <Camera :size="16" />
-                    </button>
-                    <button class="btn-icon">
-                      <MoreVertical :size="16" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+    <template v-else>
+      <header class="page-header">
+        <div class="header-content">
+          <h1>Distribusi & Logistik</h1>
+          <p>Pemantauan pengiriman paket makanan ke titik distribusi.</p>
         </div>
-      </section>
+        <div class="header-actions">
+          <button class="btn-secondary">Peta Rute</button>
+          <button class="btn-primary" :disabled="appStore.syncing">
+            <Truck :size="18" />
+            Manifest Baru
+          </button>
+        </div>
+      </header>
+
+      <div class="distribution-grid">
+        <!-- Main List -->
+        <section class="list-section">
+          <div class="table-container">
+            <div class="table-actions">
+              <div class="search-box">
+                <Search :size="18" class="search-icon" />
+                <input type="text" placeholder="Cari rute atau sekolah..." />
+              </div>
+              <div v-if="appStore.syncing" class="sync-indicator">
+                <Loader2 :size="14" class="animate-spin" />
+                <span>Mensinkronkan...</span>
+              </div>
+              <button class="btn-secondary">
+                <Filter :size="18" />
+                Filter
+              </button>
+            </div>
+
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>No. Run</th>
+                  <th>Titik Distribusi</th>
+                  <th>Porsi</th>
+                  <th>Waktu</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in appStore.distributionRuns" :key="item.id">
+                  <td class="font-bold">{{ item.run_no }}</td>
+                  <td>
+                    <div class="point-cell">
+                      <MapPin :size="14" class="text-gray-400" />
+                      <span>{{ item.point }}</span>
+                    </div>
+                  </td>
+                  <td class="text-right">{{ item.portions }}</td>
+                  <td>{{ item.time }}</td>
+                  <td>
+                    <span :class="['badge', getStatusBadgeClass(item.status)]">
+                      {{ getStatusLabel(item.status) }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="action-cell">
+                      <button 
+                        v-if="item.status === 'in_transit'" 
+                        class="btn-icon confirm-btn" 
+                        title="Konfirmasi Sampai"
+                        @click="confirmDelivery(item.id)"
+                        :disabled="appStore.syncing"
+                      >
+                        <Check :size="16" />
+                      </button>
+                      <button class="btn-icon" title="Lihat Bukti" v-if="item.status === 'delivered'">
+                        <Camera :size="16" />
+                      </button>
+                      <button class="btn-icon">
+                        <MoreVertical :size="16" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
 
       <!-- Sidebar Info -->
       <section class="info-section">
@@ -162,6 +193,7 @@ const getStatusLabel = (status: string) => {
         </div>
       </section>
     </div>
+    </template>
   </div>
 </template>
 

@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Dashboard from '../views/Dashboard.vue';
 import Beneficiaries from '../views/Beneficiaries.vue';
 import Production from '../views/Production.vue';
+import ProductionDetail from '../views/ProductionDetail.vue';
 import Inventory from '../views/Inventory.vue';
 import Distribution from '../views/Distribution.vue';
 import Finance from '../views/Finance.vue';
@@ -28,6 +29,11 @@ const router = createRouter({
           path: 'production',
           name: 'production',
           component: Production,
+        },
+        {
+          path: 'production/:id',
+          name: 'production-detail',
+          component: ProductionDetail,
         },
         {
           path: 'inventory',

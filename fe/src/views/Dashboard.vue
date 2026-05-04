@@ -1,8 +1,15 @@
 <script setup lang="ts">
+import { onMounted } from 'vue';
 import { useAppStore } from '../store/app';
-import { LayoutDashboard, Users, Utensils, Truck, Warehouse, Banknote } from 'lucide-vue-next';
+import { LayoutDashboard, Users, Utensils, Truck, Warehouse, Banknote, Loader2 } from 'lucide-vue-next';
 
 const appStore = useAppStore();
+
+onMounted(() => {
+  if (appStore.inventory.length === 0) {
+    appStore.fetchInitialData();
+  }
+});
 
 const stats = [
   { label: 'Total Penerima', value: appStore.dashboard.beneficiary_total.toLocaleString(), icon: Users, color: 'text-blue-600' },
@@ -15,52 +22,84 @@ const stats = [
 
 <template>
   <div class="dashboard">
-    <header class="page-header">
-      <h1>Dashboard Operasional</h1>
-      <p>Ringkasan status harian SPPG Makassar 01 - 1 Mei 2026</p>
-    </header>
-
-    <div class="stats-grid">
-      <div v-for="stat in stats" :key="stat.label" class="stat-card">
-        <div class="stat-icon" :class="stat.color">
-          <component :is="stat.icon" :size="24" />
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">{{ stat.label }}</span>
-          <span class="stat-value">{{ stat.value }}</span>
-        </div>
-      </div>
+    <div v-if="appStore.loading" class="loading-overlay">
+      <Loader2 class="animate-spin" :size="48" />
+      <p>Memuat data operasional...</p>
     </div>
 
-    <div class="dashboard-content">
-      <div class="content-card alert-section">
-        <h2>Peringatan Sistem ({{ appStore.dashboard.alerts.low_stock_count + appStore.dashboard.alerts.qc_pending_count + appStore.dashboard.alerts.delivery_risk_count + appStore.dashboard.alerts.budget_warning_count }})</h2>
-        <div class="alert-list">
-          <div v-if="appStore.dashboard.alerts.low_stock_count > 0" class="alert-item warning">
-            <span class="alert-title">Stok Telur Menipis</span>
-            <p>Sisa stok hanya cukup untuk 1 hari produksi.</p>
+    <template v-else>
+      <header class="page-header">
+        <h1>Dashboard Operasional</h1>
+        <p>Ringkasan status harian SPPG Makassar 01 - 1 Mei 2026</p>
+      </header>
+
+      <div class="stats-grid">
+        <div v-for="stat in stats" :key="stat.label" class="stat-card">
+          <div class="stat-icon" :class="stat.color">
+            <component :is="stat.icon" :size="24" />
           </div>
-          <div v-if="appStore.dashboard.alerts.qc_pending_count > 0" class="alert-item info">
-            <span class="alert-title">Batch PB-20260501-001</span>
-            <p>Menunggu hasil Quality Control (QC).</p>
-          </div>
-          <div v-if="appStore.dashboard.alerts.delivery_risk_count > 0" class="alert-item danger">
-            <span class="alert-title">Risiko Keterlambatan</span>
-            <p>DR-20260501-004 terjebak kemacetan rute utama.</p>
+          <div class="stat-info">
+            <span class="stat-label">{{ stat.label }}</span>
+            <span class="stat-value">{{ stat.value }}</span>
           </div>
         </div>
       </div>
-      
-      <div class="content-card status-section">
-        <h2>Status Pengiriman</h2>
-        <p>4 dari 6 rute pengiriman telah dikonfirmasi sampai tujuan.</p>
-        <!-- Placeholder for chart or list -->
+
+      <div class="dashboard-content">
+        <div class="content-card alert-section">
+          <h2>Peringatan Sistem ({{ appStore.dashboard.alerts.low_stock_count + appStore.dashboard.alerts.qc_pending_count + appStore.dashboard.alerts.delivery_risk_count + appStore.dashboard.alerts.budget_warning_count }})</h2>
+          <div class="alert-list">
+            <div v-if="appStore.dashboard.alerts.low_stock_count > 0" class="alert-item warning">
+              <span class="alert-title">Stok Telur Menipis</span>
+              <p>Sisa stok hanya cukup untuk 1 hari produksi.</p>
+            </div>
+            <div v-if="appStore.dashboard.alerts.qc_pending_count > 0" class="alert-item info">
+              <span class="alert-title">Batch Menunggu QC</span>
+              <p>Ada batch produksi yang memerlukan validasi ahli gizi.</p>
+            </div>
+            <div v-if="appStore.dashboard.alerts.delivery_risk_count > 0" class="alert-item danger">
+              <span class="alert-title">Risiko Keterlambatan</span>
+              <p>Beberapa rute pengiriman terdeteksi mengalami hambatan rute.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="content-card status-section">
+          <h2>Status Pengiriman</h2>
+          <p>{{ appStore.dashboard.delivery_runs_completed }} dari {{ appStore.dashboard.delivery_runs_total }} rute pengiriman telah dikonfirmasi sampai tujuan.</p>
+          <div class="mini-runs-list">
+            <div v-for="run in appStore.distributionRuns.slice(0, 3)" :key="run.id" class="mini-run">
+              <span class="run-no">{{ run.run_no }}</span>
+              <span class="run-point">{{ run.point }}</span>
+              <span :class="['run-status', run.status]">{{ run.status }}</span>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
 <style scoped>
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  color: #6b7280;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .page-header {
   margin-bottom: 2rem;
 }
@@ -174,6 +213,34 @@ const stats = [
   color: #4b5563;
   margin: 0;
 }
+
+.mini-runs-list {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mini-run {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  padding: 0.5rem;
+  background: #f9fafb;
+  border-radius: 0.375rem;
+}
+
+.run-no { font-weight: 600; }
+.run-status {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 9999px;
+  text-transform: capitalize;
+}
+.run-status.delivered { background: #dcfce7; color: #166534; }
+.run-status.in_transit { background: #eff6ff; color: #1e40af; }
+.run-status.scheduled { background: #f3f4f6; color: #374151; }
 
 @media (max-width: 768px) {
   .dashboard-content {

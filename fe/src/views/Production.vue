@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { MOCK_CATALOG } from '../mocks/catalog';
+import { onMounted } from 'vue';
+import { useAppStore } from '../store/app';
 import { 
   ClipboardList, 
   ChefHat, 
@@ -8,11 +8,17 @@ import {
   Clock, 
   AlertCircle,
   ArrowRight,
-  MoreVertical
+  Loader2,
+  Check
 } from 'lucide-vue-next';
 
-const menu = MOCK_CATALOG.menu;
-const batches = MOCK_CATALOG.productionBatches;
+const appStore = useAppStore();
+
+onMounted(() => {
+  if (appStore.productionBatches.length === 0) {
+    appStore.fetchInitialData();
+  }
+});
 
 const getStatusBadgeClass = (status: string) => {
   const classes: Record<string, string> = {
@@ -33,130 +39,182 @@ const getStatusLabel = (status: string) => {
   };
   return labels[status] || status;
 };
+
+const approveQC = async (id: string) => {
+  await appStore.updateProductionStatus(id, 'qc_passed');
+};
 </script>
 
 <template>
   <div class="production-page">
-    <header class="page-header">
-      <div class="header-content">
-        <h1>Menu & Produksi</h1>
-        <p>Perencanaan menu harian dan status produksi dapur.</p>
-      </div>
-      <div class="header-actions">
-        <button class="btn-secondary">Riwayat Produksi</button>
-        <button class="btn-primary">
-          <ChefHat :size="18" />
-          Mulai Batch Baru
-        </button>
-      </div>
-    </header>
+    <div v-if="appStore.loading" class="loading-overlay">
+      <Loader2 class="animate-spin" :size="48" />
+      <p>Memuat data produksi...</p>
+    </div>
 
-    <div class="production-grid">
-      <!-- Left Column: Menu Info -->
-      <section class="menu-section">
-        <div class="content-card">
-          <div class="card-header">
-            <ClipboardList :size="20" class="text-blue-600" />
-            <h2>Rencana Menu Harian</h2>
-          </div>
-          
-          <div class="menu-info">
-            <div class="menu-header">
-              <span class="menu-date">1 Mei 2026</span>
-              <h3 class="menu-name">{{ menu.name }}</h3>
+    <template v-else>
+      <header class="page-header">
+        <div class="header-content">
+          <h1>Menu & Produksi</h1>
+          <p>Perencanaan menu harian dan status produksi dapur.</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-secondary">Riwayat Produksi</button>
+          <button class="btn-primary" :disabled="appStore.syncing">
+            <ChefHat :size="18" />
+            Mulai Batch Baru
+          </button>
+        </div>
+      </header>
+
+      <div class="production-grid">
+        <!-- Left Column: Menu Info -->
+        <section class="menu-section">
+          <div class="content-card">
+            <div class="card-header">
+              <ClipboardList :size="20" class="text-blue-600" />
+              <h2>Rencana Menu Harian</h2>
             </div>
             
-            <div class="nutrition-grid">
-              <div class="nutrition-item">
-                <span class="label">Kalori</span>
-                <span class="value">{{ menu.nutrition.calories }} kcal</span>
-              </div>
-              <div class="nutrition-item">
-                <span class="label">Protein</span>
-                <span class="value">{{ menu.nutrition.protein }} g</span>
-              </div>
-              <div class="nutrition-item">
-                <span class="label">Lemak</span>
-                <span class="value">{{ menu.nutrition.fat }} g</span>
-              </div>
-            </div>
-
-            <div class="ingredients-list">
-              <h4>Kebutuhan Bahan Utama</h4>
-              <ul>
-                <li v-for="item in menu.items" :key="item.name">
-                  <span>{{ item.name }}</span>
-                  <span class="font-medium">{{ item.qty }}</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div class="content-card sanitation-card">
-          <div class="card-header">
-            <CheckCircle2 :size="20" class="text-green-600" />
-            <h2>Checklist Sanitasi</h2>
-          </div>
-          <div class="sanitation-status">
-            <div class="status-item">
-              <CheckCircle2 :size="16" class="text-green-600" />
-              <span>Higiene Personel (Lengkap)</span>
-            </div>
-            <div class="status-item">
-              <CheckCircle2 :size="16" class="text-green-600" />
-              <span>Kebersihan Area Masak (OK)</span>
-            </div>
-            <div class="status-item">
-              <Clock :size="16" class="text-blue-600" />
-              <span>Pemeriksaan Suhu (Rutin)</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Right Column: Production Batches -->
-      <section class="batches-section">
-        <div class="content-card">
-          <div class="card-header">
-            <Clock :size="20" class="text-orange-600" />
-            <h2>Batch Produksi Aktif</h2>
-          </div>
-
-          <div class="batch-list">
-            <div v-for="batch in batches" :key="batch.id" class="batch-item">
-              <div class="batch-main">
-                <div class="batch-info">
-                  <span class="batch-no">{{ batch.no }}</span>
-                  <span class="batch-time">{{ batch.time }}</span>
-                </div>
-                <div class="batch-portions">
-                  <span class="portions-value">{{ batch.produced }} / {{ batch.portions }}</span>
-                  <span class="portions-label">Porsi</span>
-                </div>
-                <div class="batch-status">
-                  <span :class="['badge', getStatusBadgeClass(batch.status)]">
-                    {{ getStatusLabel(batch.status) }}
-                  </span>
-                </div>
-                <button class="btn-icon">
-                  <ArrowRight :size="18" />
-                </button>
+            <div class="menu-info">
+              <div class="menu-header">
+                <span class="menu-date">1 Mei 2026</span>
+                <h3 class="menu-name">{{ appStore.dashboard.planned_portions > 0 ? 'Nasi Ayam Sayur' : 'Memuat...' }}</h3>
               </div>
               
-              <div v-if="batch.status === 'pending_qc'" class="batch-alert">
-                <AlertCircle :size="14" />
-                <span>Menunggu validasi ahli gizi sebelum didistribusikan.</span>
+              <div class="nutrition-grid">
+                <div class="nutrition-item">
+                  <span class="label">Kalori</span>
+                  <span class="value">650 kcal</span>
+                </div>
+                <div class="nutrition-item">
+                  <span class="label">Protein</span>
+                  <span class="value">24 g</span>
+                </div>
+                <div class="nutrition-item">
+                  <span class="label">Lemak</span>
+                  <span class="value">18 g</span>
+                </div>
+              </div>
+
+              <div class="ingredients-list">
+                <h4>Kebutuhan Bahan Utama</h4>
+                <ul>
+                  <li><span>Beras</span><span class="font-medium">128 kg</span></li>
+                  <li><span>Ayam</span><span class="font-medium">96 kg</span></li>
+                  <li><span>Sayur Campur</span><span class="font-medium">76.8 kg</span></li>
+                  <li><span>Telur</span><span class="font-medium">1,280 butir</span></li>
+                </ul>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-    </div>
+
+          <div class="content-card sanitation-card">
+            <div class="card-header">
+              <CheckCircle2 :size="20" class="text-green-600" />
+              <h2>Checklist Sanitasi</h2>
+            </div>
+            <div class="sanitation-status">
+              <div class="status-item">
+                <CheckCircle2 :size="16" class="text-green-600" />
+                <span>Higiene Personel (Lengkap)</span>
+              </div>
+              <div class="status-item">
+                <CheckCircle2 :size="16" class="text-green-600" />
+                <span>Kebersihan Area Masak (OK)</span>
+              </div>
+              <div class="status-item">
+                <Clock :size="16" class="text-blue-600" />
+                <span>Pemeriksaan Suhu (Rutin)</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Right Column: Production Batches -->
+        <section class="batches-section">
+          <div class="content-card">
+            <div class="card-header">
+              <Clock :size="20" class="text-orange-600" />
+              <h2>Batch Produksi Aktif</h2>
+              <div v-if="appStore.syncing" class="sync-indicator">
+                <Loader2 :size="14" class="animate-spin" />
+                <span>Mensinkronkan...</span>
+              </div>
+            </div>
+
+            <div class="batch-list">
+              <div v-for="batch in appStore.productionBatches" :key="batch.id" class="batch-item">
+                <div class="batch-main">
+                  <div class="batch-info">
+                    <span class="batch-no">{{ batch.no }}</span>
+                    <span class="batch-time">{{ batch.time }}</span>
+                  </div>
+                  <div class="batch-portions">
+                    <span class="portions-value">{{ batch.produced }} / {{ batch.portions }}</span>
+                    <span class="portions-label">Porsi</span>
+                  </div>
+                  <div class="batch-status">
+                    <span :class="['badge', getStatusBadgeClass(batch.status)]">
+                      {{ getStatusLabel(batch.status) }}
+                    </span>
+                  </div>
+                  <div class="batch-actions">
+                    <button 
+                      v-if="batch.status === 'pending_qc'" 
+                      class="btn-action approve"
+                      @click="approveQC(batch.id)"
+                      title="Luluskan QC"
+                      :disabled="appStore.syncing"
+                    >
+                      <Check :size="18" />
+                    </button>
+                    <router-link :to="`/production/${batch.id}`" class="btn-icon">
+                      <ArrowRight :size="18" />
+                    </router-link>
+                  </div>
+                </div>
+                
+                <div v-if="batch.status === 'pending_qc'" class="batch-alert">
+                  <AlertCircle :size="14" />
+                  <span>Menunggu validasi ahli gizi sebelum didistribusikan.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </template>
   </div>
 </template>
 
 <style scoped>
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  color: #6b7280;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.sync-indicator {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
 .page-header {
   display: flex;
   justify-content: space-between;

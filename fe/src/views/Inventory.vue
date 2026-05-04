@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { MOCK_CATALOG } from '../mocks/catalog';
+import { onMounted } from 'vue';
+import { useAppStore } from '../store/app';
 import { 
   Search, 
   Plus, 
@@ -9,10 +9,17 @@ import {
   History,
   Package,
   MoreVertical,
-  ArrowDownToLine
+  ArrowDownToLine,
+  Loader2
 } from 'lucide-vue-next';
 
-const inventory = MOCK_CATALOG.inventory;
+const appStore = useAppStore();
+
+onMounted(() => {
+  if (appStore.inventory.length === 0) {
+    appStore.fetchInitialData();
+  }
+});
 
 const getStatusBadgeClass = (status: string) => {
   const classes: Record<string, string> = {
@@ -35,100 +42,124 @@ const getStatusLabel = (status: string) => {
 
 <template>
   <div class="inventory-page">
-    <header class="page-header">
-      <div class="header-content">
-        <h1>Inventori & Stok</h1>
-        <p>Manajemen stok bahan baku dan pemantauan kedaluwarsa.</p>
-      </div>
-      <div class="header-actions">
-        <button class="btn-secondary">
-          <History :size="18" />
-          Riwayat Pergerakan
-        </button>
-        <button class="btn-primary">
-          <ArrowDownToLine :size="18" />
-          Penerimaan Barang
-        </button>
-      </div>
-    </header>
-
-    <div class="stats-row">
-      <div class="stat-card">
-        <span class="label">Total Item</span>
-        <span class="value">24</span>
-      </div>
-      <div class="stat-card warning">
-        <span class="label">Stok Rendah</span>
-        <span class="value">3</span>
-      </div>
-      <div class="stat-card danger">
-        <span class="label">Mendekati Kedaluwarsa</span>
-        <span class="value">2</span>
-      </div>
+    <div v-if="appStore.loading" class="loading-overlay">
+      <Loader2 class="animate-spin" :size="48" />
+      <p>Memuat data inventori...</p>
     </div>
 
-    <div class="table-container">
-      <div class="table-actions">
-        <div class="search-box">
-          <Search :size="18" class="search-icon" />
-          <input type="text" placeholder="Cari bahan baku..." />
+    <template v-else>
+      <header class="page-header">
+        <div class="header-content">
+          <h1>Inventori & Stok</h1>
+          <p>Manajemen stok bahan baku dan pemantauan kedaluwarsa.</p>
         </div>
-        <div class="filter-group">
+        <div class="header-actions">
           <button class="btn-secondary">
-            <Filter :size="18" />
-            Filter
+            <History :size="18" />
+            Riwayat Pergerakan
           </button>
           <button class="btn-primary">
-            <Plus :size="18" />
-            Item Baru
+            <ArrowDownToLine :size="18" />
+            Penerimaan Barang
           </button>
+        </div>
+      </header>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="label">Total Item</span>
+          <span class="value">{{ appStore.inventory.length }}</span>
+        </div>
+        <div class="stat-card warning">
+          <span class="label">Stok Rendah</span>
+          <span class="value">{{ appStore.dashboard.alerts.low_stock_count }}</span>
+        </div>
+        <div class="stat-card danger">
+          <span class="label">Mendekati Kedaluwarsa</span>
+          <span class="value">2</span>
         </div>
       </div>
 
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Bahan Baku</th>
-            <th>Kategori</th>
-            <th>Stok Saat Ini</th>
-            <th>Stok Minimum</th>
-            <th>Kedaluwarsa Terdekat</th>
-            <th>Status</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in inventory" :key="item.id">
-            <td>
-              <div class="item-name-cell">
-                <Package :size="16" class="text-gray-400" />
-                <span class="font-medium">{{ item.name }}</span>
-              </div>
-            </td>
-            <td>
-              <span class="badge badge-gray">{{ item.category }}</span>
-            </td>
-            <td class="text-right font-medium">{{ item.qty }} {{ item.unit }}</td>
-            <td class="text-right text-gray-500">{{ item.min }} {{ item.unit }}</td>
-            <td>{{ item.expiry }}</td>
-            <td>
-              <span :class="['badge', getStatusBadgeClass(item.status)]">
-                {{ getStatusLabel(item.status) }}
-              </span>
-            </td>
-            <td>
-              <button class="btn-icon">
-                <MoreVertical :size="16" />
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+      <div class="table-container">
+        <div class="table-actions">
+          <div class="search-box">
+            <Search :size="18" class="search-icon" />
+            <input type="text" placeholder="Cari bahan baku..." />
+          </div>
+          <div class="filter-group">
+            <button class="btn-secondary">
+              <Filter :size="18" />
+              Filter
+            </button>
+            <button class="btn-primary">
+              <Plus :size="18" />
+              Item Baru
+            </button>
+          </div>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Bahan Baku</th>
+              <th>Kategori</th>
+              <th>Stok Saat Ini</th>
+              <th>Stok Minimum</th>
+              <th>Kedaluwarsa Terdekat</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in appStore.inventory" :key="item.id">
+              <td>
+                <div class="item-name-cell">
+                  <Package :size="16" class="text-gray-400" />
+                  <span class="font-medium">{{ item.name }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="badge badge-gray">{{ item.category }}</span>
+              </td>
+              <td class="text-right font-medium">{{ item.qty }} {{ item.unit }}</td>
+              <td class="text-right text-gray-500">{{ item.min }} {{ item.unit }}</td>
+              <td>{{ item.expiry }}</td>
+              <td>
+                <span :class="['badge', getStatusBadgeClass(item.status)]">
+                  {{ getStatusLabel(item.status) }}
+                </span>
+              </td>
+              <td>
+                <button class="btn-icon">
+                  <MoreVertical :size="16" />
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </template>
   </div>
 </template>
 
 <style scoped>
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  color: #6b7280;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 .page-header {
   display: flex;
   justify-content: space-between;

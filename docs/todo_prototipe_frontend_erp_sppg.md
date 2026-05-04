@@ -55,35 +55,35 @@ Rujukan kerja:
 - [mock_data_catalog_erp_sppg.md](/Users/user/Projects/Algenz/erp-sppg/docs/mock_data_catalog_erp_sppg.md)
 
 ### 3.4 Struktur Frontend
-- [ ] Tentukan struktur folder untuk `pages`, `components`, `services`, `models`, dan `mocks`.
-- [ ] Buat service layer per modul.
-- [ ] Buat interface atau type terpusat dari kontrak API.
-- [ ] Buat mock provider yang mengembalikan data sesuai kontrak.
-- [ ] Siapkan state dasar untuk list, detail, loading, empty state, dan error state.
+- [x] Tentukan struktur folder untuk `pages`, `components`, `services`, `models`, dan `mocks`.
+- [x] Buat service layer per modul.
+- [x] Buat interface atau type terpusat dari kontrak API.
+- [x] Buat mock provider yang mengembalikan data sesuai kontrak.
+- [x] Siapkan state dasar untuk list, detail, loading, empty state, dan error state.
 
 Output minimum:
 - fondasi frontend yang tidak hardcode data langsung di komponen.
 
 ### 3.5 Screen Planning
-- [ ] Buat daftar seluruh halaman yang masuk demo.
-- [ ] Tentukan prioritas layar `must-have`, `should-have`, dan `nice-to-have`.
-- [ ] Tentukan komponen reusable seperti tabel, stat card, status badge, timeline, dan form section.
-- [ ] Buat alur navigasi dari dashboard ke halaman detail.
-- [ ] Tentukan versi mobile/responsif untuk skenario kurir atau petugas lapangan.
+- [x] Buat daftar seluruh halaman yang masuk demo.
+- [x] Tentukan prioritas layar `must-have`, `should-have`, dan `nice-to-have`.
+- [x] Tentukan komponen reusable seperti tabel, stat card, status badge, timeline, dan form section.
+- [x] Buat alur navigasi dari dashboard ke halaman detail.
+- [x] Tentukan versi mobile/responsif untuk skenario kurir atau petugas lapangan.
 
 Output minimum:
 - screen map;
 - prioritas implementasi halaman.
 
 ### 3.6 Implementasi Layar Prioritas
-- [ ] Bangun dashboard operasional utama.
+- [x] Bangun dashboard operasional utama.
 - [ ] Bangun halaman master data penerima manfaat dan titik distribusi.
-- [ ] Bangun halaman menu dan perencanaan porsi.
+- [x] Bangun halaman menu dan perencanaan porsi.
 - [ ] Bangun halaman pengadaan dan penerimaan barang.
-- [ ] Bangun halaman inventory dan batch stok.
-- [ ] Bangun halaman produksi dan quality check.
-- [ ] Bangun halaman distribusi dan bukti serah terima.
-- [ ] Bangun halaman biaya operasional dan ringkasan laporan.
+- [x] Bangun halaman inventory dan batch stok.
+- [x] Bangun halaman produksi dan quality check.
+- [x] Bangun halaman distribusi dan bukti serah terima.
+- [x] Bangun halaman biaya operasional dan ringkasan laporan.
 
 Output minimum:
 - alur demo utama bisa berjalan penuh tanpa dead end.
