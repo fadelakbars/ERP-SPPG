@@ -1,52 +1,91 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useAppStore } from '../store/app';
-import { Search, Plus, MoreVertical, Filter, Loader2, Users } from 'lucide-vue-next';
+import { 
+  ShoppingCart, 
+  Search, 
+  Filter, 
+  Plus, 
+  MoreVertical, 
+  Loader2,
+  ArrowDownToLine,
+  CheckCircle2,
+  Clock
+} from 'lucide-vue-next';
 
 const appStore = useAppStore();
 
 onMounted(() => {
-  if (appStore.beneficiaries.length === 0) {
+  if (appStore.purchaseOrders.length === 0) {
     appStore.fetchInitialData();
   }
 });
 
 const getStatusBadgeClass = (status: string) => {
-  return status === 'active' ? 'badge-success' : 'badge-gray';
+  const classes: Record<string, string> = {
+    draft: 'badge-gray',
+    ordered: 'badge-info',
+    partially_received: 'badge-warning',
+    received: 'badge-success',
+    cancelled: 'badge-danger',
+  };
+  return classes[status] || 'badge-gray';
 };
 
 const getStatusLabel = (status: string) => {
-  return status === 'active' ? 'Aktif' : 'Non-aktif';
+  const labels: Record<string, string> = {
+    draft: 'Draft',
+    ordered: 'Dipesan',
+    partially_received: 'Diterima Parsial',
+    received: 'Diterima',
+    cancelled: 'Dibatalkan',
+  };
+  return labels[status] || status;
 };
 </script>
 
 <template>
-  <div class="beneficiaries-page">
+  <div class="procurement-page">
     <div v-if="appStore.loading" class="loading-overlay">
       <Loader2 class="animate-spin" :size="48" />
-      <p>Memuat data penerima manfaat...</p>
+      <p>Memuat data pengadaan...</p>
     </div>
 
     <template v-else>
       <header class="page-header">
         <div class="header-content">
-          <h1>Penerima Manfaat</h1>
-          <p>Kelola data sekolah dan kelompok penerima manfaat gizi.</p>
+          <h1>Pengadaan & Penerimaan</h1>
+          <p>Kelola pemesanan bahan baku dan kontrol kualitas barang masuk.</p>
         </div>
-        <button class="btn-primary">
-          <Plus :size="18" />
-          Tambah Penerima
-        </button>
+        <div class="header-actions">
+          <button class="btn-secondary">
+            <ArrowDownToLine :size="18" />
+            Terima Barang
+          </button>
+          <button class="btn-primary">
+            <Plus :size="18" />
+            Buat PO Baru
+          </button>
+        </div>
       </header>
 
       <div class="stats-row">
         <div class="stat-card">
-          <div class="stat-icon-bg">
-            <Users :size="20" class="text-blue-600" />
+          <div class="stat-icon-bg info">
+            <ShoppingCart :size="20" class="text-blue-600" />
           </div>
           <div class="stat-content">
-            <span class="label">Total Siswa/Penerima</span>
-            <span class="value">{{ appStore.dashboard.beneficiary_total.toLocaleString() }}</span>
+            <span class="label">PO Aktif</span>
+            <span class="value">3</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-bg warning">
+            <Clock :size="20" class="text-orange-600" />
+          </div>
+          <div class="stat-content">
+            <span class="label">Menunggu Kedatangan</span>
+            <span class="value">2</span>
           </div>
         </div>
       </div>
@@ -55,7 +94,7 @@ const getStatusLabel = (status: string) => {
         <div class="table-actions">
           <div class="search-box">
             <Search :size="18" class="search-icon" />
-            <input type="text" placeholder="Cari nama, sekolah atau wilayah..." />
+            <input type="text" placeholder="Cari nomor PO atau vendor..." />
           </div>
           <button class="btn-secondary">
             <Filter :size="18" />
@@ -66,25 +105,23 @@ const getStatusLabel = (status: string) => {
         <table class="data-table">
           <thead>
             <tr>
-              <th>Nama Penerima</th>
-              <th>Kelompok</th>
-              <th>Sekolah / Lokasi</th>
-              <th>Titik Distribusi</th>
+              <th>No. Purchase Order</th>
+              <th>Vendor</th>
+              <th>Tanggal</th>
+              <th>Total Nilai</th>
               <th>Status</th>
               <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in appStore.beneficiaries" :key="item.id">
-              <td class="font-medium">{{ item.name }}</td>
+            <tr v-for="po in appStore.purchaseOrders" :key="po.id">
+              <td class="font-bold">{{ po.po_no }}</td>
+              <td>{{ po.vendor }}</td>
+              <td>{{ po.date }}</td>
+              <td class="text-right">Rp {{ po.amount.toLocaleString() }}</td>
               <td>
-                <span class="badge badge-gray">{{ item.group }}</span>
-              </td>
-              <td>{{ item.school }}</td>
-              <td>{{ item.distribution_point }}</td>
-              <td>
-                <span :class="['badge', getStatusBadgeClass(item.status)]">
-                  {{ getStatusLabel(item.status) }}
+                <span :class="['badge', getStatusBadgeClass(po.status)]">
+                  {{ getStatusLabel(po.status) }}
                 </span>
               </td>
               <td>
@@ -120,43 +157,6 @@ const getStatusLabel = (status: string) => {
   to { transform: rotate(360deg); }
 }
 
-.stats-row {
-  margin-bottom: 1.5rem;
-}
-
-.stat-card {
-  background: white;
-  padding: 1.25rem;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  max-width: 300px;
-}
-
-.stat-icon-bg {
-  background: #eff6ff;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-}
-
-.stat-content {
-  display: flex;
-  flex-direction: column;
-}
-
-.stat-content .label {
-  font-size: 0.75rem;
-  color: #6b7280;
-}
-
-.stat-content .value {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #111827;
-}
-
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -176,6 +176,11 @@ const getStatusLabel = (status: string) => {
   margin-top: 0.25rem;
 }
 
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
 .btn-primary {
   background-color: #2563eb;
   color: white;
@@ -189,8 +194,58 @@ const getStatusLabel = (status: string) => {
   cursor: pointer;
 }
 
-.btn-primary:hover {
-  background-color: #1d4ed8;
+.btn-secondary {
+  background-color: white;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.stats-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 240px;
+}
+
+.stat-icon-bg {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+}
+
+.stat-icon-bg.info { background: #eff6ff; }
+.stat-icon-bg.warning { background: #fffbeb; }
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-content .label {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.stat-content .value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
 }
 
 .table-container {
@@ -230,19 +285,6 @@ const getStatusLabel = (status: string) => {
   font-size: 0.875rem;
 }
 
-.btn-secondary {
-  background-color: white;
-  border: 1px solid #d1d5db;
-  color: #374151;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-}
-
 .data-table {
   width: 100%;
   border-collapse: collapse;
@@ -266,18 +308,6 @@ const getStatusLabel = (status: string) => {
   color: #111827;
 }
 
-.data-table tr:hover {
-  background-color: #f9fafb;
-}
-
-.font-medium {
-  font-weight: 500;
-}
-
-.text-right {
-  text-align: right;
-}
-
 .badge {
   padding: 0.25rem 0.625rem;
   border-radius: 9999px;
@@ -285,15 +315,11 @@ const getStatusLabel = (status: string) => {
   font-weight: 500;
 }
 
-.badge-gray {
-  background-color: #f3f4f6;
-  color: #374151;
-}
-
-.badge-success {
-  background-color: #dcfce7;
-  color: #166534;
-}
+.badge-success { background: #dcfce7; color: #166534; }
+.badge-info { background: #eff6ff; color: #1e40af; }
+.badge-warning { background: #fffbeb; color: #92400e; }
+.badge-danger { background: #fef2f2; color: #991b1b; }
+.badge-gray { background: #f3f4f6; color: #374151; }
 
 .btn-icon {
   background: none;
@@ -306,6 +332,9 @@ const getStatusLabel = (status: string) => {
 
 .btn-icon:hover {
   background-color: #f3f4f6;
-  color: #4b5563;
+  color: #2563eb;
 }
+
+.font-bold { font-weight: 700; }
+.text-right { text-align: right; }
 </style>

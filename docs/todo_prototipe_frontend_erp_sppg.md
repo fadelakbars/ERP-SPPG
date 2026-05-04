@@ -77,9 +77,9 @@ Output minimum:
 
 ### 3.6 Implementasi Layar Prioritas
 - [x] Bangun dashboard operasional utama.
-- [ ] Bangun halaman master data penerima manfaat dan titik distribusi.
+- [x] Bangun halaman master data penerima manfaat dan titik distribusi.
 - [x] Bangun halaman menu dan perencanaan porsi.
-- [ ] Bangun halaman pengadaan dan penerimaan barang.
+- [x] Bangun halaman pengadaan dan penerimaan barang.
 - [x] Bangun halaman inventory dan batch stok.
 - [x] Bangun halaman produksi dan quality check.
 - [x] Bangun halaman distribusi dan bukti serah terima.

@@ -3,9 +3,12 @@ import { MOCK_CATALOG } from '../mocks/catalog';
 import { ProductionService } from '../services/production.service';
 import { InventoryService } from '../services/inventory.service';
 import { DistributionService } from '../services/distribution.service';
+import { BeneficiaryService } from '../services/beneficiary.service';
+import { ProcurementService } from '../services/procurement.service';
 import type { 
   User, Tenant, DashboardSummary, 
-  ProductionBatch, InventoryItem, DistributionRun 
+  ProductionBatch, InventoryItem, DistributionRun,
+  Beneficiary, PurchaseOrder
 } from '../types';
 
 export const useAppStore = defineStore('app', {
@@ -16,6 +19,8 @@ export const useAppStore = defineStore('app', {
     productionBatches: [] as ProductionBatch[],
     inventory: [] as InventoryItem[],
     distributionRuns: [] as DistributionRun[],
+    beneficiaries: [] as Beneficiary[],
+    purchaseOrders: [] as PurchaseOrder[],
     loading: false,
     syncing: false,
   }),
@@ -23,14 +28,18 @@ export const useAppStore = defineStore('app', {
     async fetchInitialData() {
       this.loading = true;
       try {
-        const [batches, inv, dist] = await Promise.all([
+        const [batches, inv, dist, bens, pos] = await Promise.all([
           ProductionService.getBatches(),
           InventoryService.getInventory(),
           DistributionService.getRuns(),
+          BeneficiaryService.getBeneficiaries(),
+          ProcurementService.getPurchaseOrders(),
         ]);
         this.productionBatches = batches;
         this.inventory = inv;
         this.distributionRuns = dist;
+        this.beneficiaries = bens;
+        this.purchaseOrders = pos;
       } finally {
         this.loading = false;
       }

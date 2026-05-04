@@ -71,6 +71,24 @@ export interface Expense {
   ref: string;
 }
 
+export interface Beneficiary {
+  id: string;
+  name: string;
+  group: string;
+  school: string;
+  distribution_point: string;
+  status: 'active' | 'inactive';
+}
+
+export interface PurchaseOrder {
+  id: string;
+  po_no: string;
+  vendor: string;
+  date: string;
+  amount: number;
+  status: 'draft' | 'ordered' | 'partially_received' | 'received' | 'cancelled';
+}
+
 export interface FinanceSummary {
   total_expense: number;
   total_budget: number;

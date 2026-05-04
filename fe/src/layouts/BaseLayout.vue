@@ -10,7 +10,8 @@ import {
   Settings, 
   LogOut,
   Menu as MenuIcon,
-  X
+  X,
+  ShoppingCart
 } from 'lucide-vue-next';
 
 const sidebarOpen = ref(true);
@@ -223,6 +224,11 @@ const toggleSidebar = () => {
   }
   
   .sidebar-closed {
+    transform: translateX(-100%);
+  }
+}
+</style>
+{
     transform: translateX(-100%);
   }
 }
