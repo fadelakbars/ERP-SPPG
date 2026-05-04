@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { MOCK_CATALOG } from '../mocks/catalog';
+import { onMounted } from 'vue';
+import { useAppStore } from '../store/app';
 import { 
   Banknote, 
   TrendingUp, 
@@ -10,10 +10,17 @@ import {
   Calendar,
   ArrowUpRight,
   MoreVertical,
-  Plus
+  Plus,
+  Loader2
 } from 'lucide-vue-next';
 
-const finance = MOCK_CATALOG.finance;
+const appStore = useAppStore();
+
+onMounted(() => {
+  if (!appStore.financeSummary) {
+    appStore.fetchInitialData();
+  }
+});
 
 const formatCurrency = (val: number) => {
   return new Intl.NumberFormat('id-ID', {
@@ -26,147 +33,173 @@ const formatCurrency = (val: number) => {
 
 <template>
   <div class="finance-page">
-    <header class="page-header">
-      <div class="header-content">
-        <h1>Keuangan Operasional</h1>
-        <p>Ringkasan anggaran, pengeluaran, dan biaya per porsi.</p>
-      </div>
-      <div class="header-actions">
-        <button class="btn-secondary">
-          <Download :size="18" />
-          Ekspor Laporan
-        </button>
-        <button class="btn-primary">
-          <Plus :size="18" />
-          Input Pengeluaran
-        </button>
-      </div>
-    </header>
-
-    <div class="finance-overview">
-      <div class="overview-card main-stat">
-        <div class="stat-header">
-          <div class="icon-box bg-blue-100 text-blue-600">
-            <Banknote :size="24" />
-          </div>
-          <span class="stat-title">Total Pengeluaran Hari Ini</span>
-        </div>
-        <div class="stat-body">
-          <h2 class="stat-value">{{ formatCurrency(finance.summary.total_expense) }}</h2>
-          <div class="stat-meta">
-            <TrendingUp :size="14" class="text-green-600" />
-            <span class="text-green-600 font-bold">92.5%</span>
-            <span class="text-gray-500">dari plafon harian</span>
-          </div>
-        </div>
-        <div class="stat-footer">
-          <div class="progress-bar">
-            <div class="progress-fill" :style="{ width: finance.summary.utilization_pct + '%' }"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="overview-card">
-        <div class="stat-header">
-          <div class="icon-box bg-orange-100 text-orange-600">
-            <Wallet :size="20" />
-          </div>
-          <span class="stat-title">Sisa Anggaran Harian</span>
-        </div>
-        <div class="stat-body">
-          <h2 class="stat-value">{{ formatCurrency(finance.summary.remaining_budget) }}</h2>
-          <p class="stat-desc">Estimasi untuk kebutuhan darurat</p>
-        </div>
-      </div>
-
-      <div class="overview-card">
-        <div class="stat-header">
-          <div class="icon-box bg-green-100 text-green-600">
-            <TrendingUp :size="20" />
-          </div>
-          <span class="stat-title">Biaya per Porsi</span>
-        </div>
-        <div class="stat-body">
-          <h2 class="stat-value">{{ formatCurrency(finance.summary.cost_per_portion) }}</h2>
-          <p class="stat-desc">Target: Rp 12.500 / porsi</p>
-        </div>
-      </div>
+    <div v-if="appStore.loading || !appStore.financeSummary" class="loading-overlay">
+      <Loader2 class="animate-spin" :size="48" />
+      <p>Memuat data keuangan...</p>
     </div>
 
-    <div class="finance-content">
-      <section class="transactions-section">
-        <div class="content-card">
-          <div class="card-header">
-            <FileText :size="20" class="text-gray-400" />
-            <h2>Daftar Pengeluaran</h2>
-          </div>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Kategori</th>
-                <th>Referensi</th>
-                <th>Waktu Posting</th>
-                <th>Status</th>
-                <th>Jumlah</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="exp in finance.expenses" :key="exp.id">
-                <td class="font-bold">{{ exp.category }}</td>
-                <td class="text-gray-500">{{ exp.ref }}</td>
-                <td>{{ exp.date }}</td>
-                <td>
-                  <span class="badge badge-success">Posted</span>
-                </td>
-                <td class="text-right font-bold">{{ formatCurrency(exp.amount) }}</td>
-                <td>
-                  <button class="btn-icon">
-                    <MoreVertical :size="16" />
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+    <template v-else>
+      <header class="page-header">
+        <div class="header-content">
+          <h1>Keuangan Operasional</h1>
+          <p>Ringkasan anggaran, pengeluaran, dan biaya per porsi.</p>
         </div>
-      </section>
+        <div class="header-actions">
+          <button class="btn-secondary">
+            <Download :size="18" />
+            Ekspor Laporan
+          </button>
+          <button class="btn-primary">
+            <Plus :size="18" />
+            Input Pengeluaran
+          </button>
+        </div>
+      </header>
 
-      <section class="budget-breakdown">
-        <div class="content-card">
-          <div class="card-header">
-            <TrendingUp :size="20" class="text-gray-400" />
-            <h2>Rincian Biaya</h2>
+      <div class="finance-overview">
+        <div class="overview-card main-stat">
+          <div class="stat-header">
+            <div class="icon-box bg-blue-100 text-blue-600">
+              <Banknote :size="24" />
+            </div>
+            <span class="stat-title">Total Pengeluaran Hari Ini</span>
           </div>
-          <div class="breakdown-list">
-            <div class="breakdown-item">
-              <div class="item-label">Bahan Baku</div>
-              <div class="item-bar-container">
-                <div class="item-bar bg-blue-500" style="width: 82%"></div>
-              </div>
-              <div class="item-value">82%</div>
+          <div class="stat-body">
+            <h2 class="stat-value">{{ formatCurrency(appStore.financeSummary.total_expense) }}</h2>
+            <div class="stat-meta">
+              <TrendingUp :size="14" class="text-green-600" />
+              <span class="text-green-600 font-bold">{{ appStore.financeSummary.utilization_pct }}%</span>
+              <span class="text-gray-500">dari plafon harian</span>
             </div>
-            <div class="breakdown-item">
-              <div class="item-label">Logistik</div>
-              <div class="item-bar-container">
-                <div class="item-bar bg-orange-500" style="width: 10%"></div>
-              </div>
-              <div class="item-value">10%</div>
-            </div>
-            <div class="breakdown-item">
-              <div class="item-label">Operasional</div>
-              <div class="item-bar-container">
-                <div class="item-bar bg-green-500" style="width: 8%"></div>
-              </div>
-              <div class="item-value">8%</div>
+          </div>
+          <div class="stat-footer">
+            <div class="progress-bar">
+              <div class="progress-fill" :style="{ width: appStore.financeSummary.utilization_pct + '%' }"></div>
             </div>
           </div>
         </div>
-      </section>
-    </div>
+
+        <div class="overview-card">
+          <div class="stat-header">
+            <div class="icon-box bg-orange-100 text-orange-600">
+              <Wallet :size="20" />
+            </div>
+            <span class="stat-title">Sisa Anggaran Harian</span>
+          </div>
+          <div class="stat-body">
+            <h2 class="stat-value">{{ formatCurrency(appStore.financeSummary.remaining_budget) }}</h2>
+            <p class="stat-desc">Estimasi untuk kebutuhan darurat</p>
+          </div>
+        </div>
+
+        <div class="overview-card">
+          <div class="stat-header">
+            <div class="icon-box bg-green-100 text-green-600">
+              <TrendingUp :size="20" />
+            </div>
+            <span class="stat-title">Biaya per Porsi</span>
+          </div>
+          <div class="stat-body">
+            <h2 class="stat-value">{{ formatCurrency(appStore.financeSummary.cost_per_portion) }}</h2>
+            <p class="stat-desc">Target: Rp 12.500 / porsi</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="finance-content">
+        <section class="transactions-section">
+          <div class="content-card">
+            <div class="card-header">
+              <FileText :size="20" class="text-gray-400" />
+              <h2>Daftar Pengeluaran</h2>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Kategori</th>
+                  <th>Referensi</th>
+                  <th>Waktu Posting</th>
+                  <th>Status</th>
+                  <th>Jumlah</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="exp in appStore.expenses" :key="exp.id">
+                  <td class="font-bold">{{ exp.category }}</td>
+                  <td class="text-gray-500">{{ exp.ref }}</td>
+                  <td>{{ exp.date }}</td>
+                  <td>
+                    <span class="badge badge-success">{{ exp.status }}</span>
+                  </td>
+                  <td class="text-right font-bold">{{ formatCurrency(exp.amount) }}</td>
+                  <td>
+                    <button class="btn-icon">
+                      <MoreVertical :size="16" />
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="budget-breakdown">
+          <div class="content-card">
+            <div class="card-header">
+              <TrendingUp :size="20" class="text-gray-400" />
+              <h2>Rincian Biaya</h2>
+            </div>
+            <div class="breakdown-list">
+              <div class="breakdown-item">
+                <div class="item-label">Bahan Baku</div>
+                <div class="item-bar-container">
+                  <div class="item-bar bg-blue-500" style="width: 82%"></div>
+                </div>
+                <div class="item-value">82%</div>
+              </div>
+              <div class="breakdown-item">
+                <div class="item-label">Logistik</div>
+                <div class="item-bar-container">
+                  <div class="item-bar bg-orange-500" style="width: 10%"></div>
+                </div>
+                <div class="item-value">10%</div>
+              </div>
+              <div class="breakdown-item">
+                <div class="item-label">Operasional</div>
+                <div class="item-bar-container">
+                  <div class="item-bar bg-green-500" style="width: 8%"></div>
+                </div>
+                <div class="item-value">8%</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </template>
   </div>
 </template>
 
 <style scoped>
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  color: #6b7280;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -395,6 +428,7 @@ const formatCurrency = (val: number) => {
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 500;
+  text-transform: capitalize;
 }
 
 .badge-success { background: #dcfce7; color: #166534; }

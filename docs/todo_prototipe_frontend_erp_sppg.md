@@ -89,10 +89,10 @@ Output minimum:
 - alur demo utama bisa berjalan penuh tanpa dead end.
 
 ### 3.7 Demo States
-- [ ] Siapkan state normal untuk semua layar utama.
-- [ ] Siapkan state warning untuk kasus stok menipis, keterlambatan, atau biaya melewati ambang.
-- [ ] Siapkan state exception untuk kasus barang ditolak, batch gagal QC, atau pengiriman parsial.
-- [ ] Pastikan state tersebut mudah dipicu saat demo.
+- [x] Siapkan state normal untuk semua layar utama.
+- [x] Siapkan state warning untuk kasus stok menipis, keterlambatan, atau biaya melewati ambang.
+- [x] Siapkan state exception untuk kasus barang ditolak, batch gagal QC, atau pengiriman parsial.
+- [x] Pastikan state tersebut mudah dipicu saat demo.
 
 Output minimum:
 - minimal tiga mode demo: normal, warning, exception.

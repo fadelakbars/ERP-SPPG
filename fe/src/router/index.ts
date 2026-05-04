@@ -36,8 +36,7 @@ const router = createRouter({
           name: 'production',
           component: Production,
         },
-...
-
+        {
           path: 'production/:id',
           name: 'production-detail',
           component: ProductionDetail,

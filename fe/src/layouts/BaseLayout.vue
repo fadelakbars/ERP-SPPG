@@ -19,6 +19,7 @@ const sidebarOpen = ref(true);
 const menuItems = [
   { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
   { name: 'Penerima Manfaat', icon: Users, path: '/beneficiaries' },
+  { name: 'Pengadaan', icon: ShoppingCart, path: '/procurement' },
   { name: 'Menu & Produksi', icon: Utensils, path: '/production' },
   { name: 'Inventori', icon: Warehouse, path: '/inventory' },
   { name: 'Distribusi', icon: Truck, path: '/distribution' },
@@ -73,7 +74,6 @@ const toggleSidebar = () => {
       </header>
 
       <div class="content-area">
-        <slot></slot>
         <router-view></router-view>
       </div>
     </main>
@@ -224,11 +224,6 @@ const toggleSidebar = () => {
   }
   
   .sidebar-closed {
-    transform: translateX(-100%);
-  }
-}
-</style>
-{
     transform: translateX(-100%);
   }
 }

@@ -461,9 +461,33 @@ const approveQC = async (id: string) => {
 .badge-info { background: #eff6ff; color: #1e40af; }
 .badge-primary { background: #e0e7ff; color: #3730a3; }
 .badge-success { background: #dcfce7; color: #166534; }
+.badge-danger { background: #fef2f2; color: #991b1b; }
 .badge-gray { background: #f3f4f6; color: #374151; }
 
 .btn-icon {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+}
+
+.btn-icon:hover {
+  background-color: #f3f4f6;
+  color: #2563eb;
+}
+
+.font-medium { font-weight: 500; }
+
+@media (max-width: 1024px) {
+  .production-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+n-icon {
   background: none;
   border: none;
   color: #9ca3af;
