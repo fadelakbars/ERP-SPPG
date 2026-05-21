@@ -486,26 +486,3 @@ const approveQC = async (id: string) => {
   }
 }
 </style>
-
-n-icon {
-  background: none;
-  border: none;
-  color: #9ca3af;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 0.375rem;
-}
-
-.btn-icon:hover {
-  background-color: #f3f4f6;
-  color: #2563eb;
-}
-
-.font-medium { font-weight: 500; }
-
-@media (max-width: 1024px) {
-  .production-grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>

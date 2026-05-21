@@ -479,29 +479,3 @@ const confirmDelivery = async (id: string) => {
   }
 }
 </style>
-
-
-.btn-icon {
-  background: none;
-  border: none;
-  color: #9ca3af;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 0.25rem;
-}
-
-.btn-icon:hover {
-  background-color: #f3f4f6;
-  color: #2563eb;
-}
-
-.font-bold { font-weight: 700; }
-.text-right { text-align: right; }
-.text-gray-400 { color: #9ca3af; }
-
-@media (max-width: 1024px) {
-  .distribution-grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>
