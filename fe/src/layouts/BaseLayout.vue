@@ -7,7 +7,6 @@ import {
   Warehouse, 
   Truck, 
   Banknote, 
-  Settings, 
   LogOut,
   Menu as MenuIcon,
   X,

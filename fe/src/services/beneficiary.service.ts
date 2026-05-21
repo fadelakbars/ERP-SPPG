@@ -1,4 +1,3 @@
-import { MOCK_CATALOG } from '../mocks/catalog';
 import type { Beneficiary } from '../types';
 
 // Adding mock data for beneficiaries if not in catalog, but catalog has it in summary

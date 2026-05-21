@@ -9,7 +9,6 @@ import {
   MoreVertical, 
   Loader2,
   ArrowDownToLine,
-  CheckCircle2,
   Clock
 } from 'lucide-vue-next';
 

@@ -9,7 +9,7 @@ import { FinanceService } from '../services/finance.service';
 import type { 
   User, Tenant, DashboardSummary, 
   ProductionBatch, InventoryItem, DistributionRun,
-  Beneficiary, PurchaseOrder
+  Beneficiary, PurchaseOrder, FinanceSummary, Expense
 } from '../types';
 
 export const useAppStore = defineStore('app', {

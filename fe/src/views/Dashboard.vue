@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useAppStore } from '../store/app';
-import { LayoutDashboard, Users, Utensils, Truck, Warehouse, Banknote, Loader2 } from 'lucide-vue-next';
+import { Users, Utensils, Truck, Warehouse, Banknote, Loader2 } from 'lucide-vue-next';
 
 const appStore = useAppStore();
 

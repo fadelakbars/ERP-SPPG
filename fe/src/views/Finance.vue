@@ -7,8 +7,6 @@ import {
   Wallet, 
   FileText, 
   Download,
-  Calendar,
-  ArrowUpRight,
   MoreVertical,
   Plus,
   Loader2

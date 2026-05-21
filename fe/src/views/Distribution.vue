@@ -4,7 +4,6 @@ import { useAppStore } from '../store/app';
 import { 
   Truck, 
   MapPin, 
-  Clock, 
   CheckCircle2, 
   Search, 
   Filter,
@@ -13,8 +12,7 @@ import {
   Camera,
   AlertCircle,
   Loader2,
-  Check,
-  X
+  Check
 } from 'lucide-vue-next';
 
 const appStore = useAppStore();

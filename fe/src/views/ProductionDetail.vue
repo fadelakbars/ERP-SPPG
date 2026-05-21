@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAppStore } from '../store/app';
 import { ProductionService } from '../services/production.service';
 import type { ProductionBatch } from '../types';
 import { 
   ArrowLeft, 
-  Clock, 
   CheckCircle2, 
   AlertCircle, 
-  ChefHat, 
   Check, 
   History,
   Info,
